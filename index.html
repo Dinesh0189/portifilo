@@ -15,9 +15,7 @@
             color: #e0e0e0;
         }
 
-        /* * NEW 2D ANIMATED BACKGROUND
-         * Replaces the 3D canvas
-        */
+        /* 2D ANIMATED BACKGROUND */
         #floating-shapes-bg {
             position: fixed;
             top: 0;
@@ -35,7 +33,6 @@
             list-style: none;
             width: 20px;
             height: 20px;
-            /* Use the theme's purple color with a soft blur */
             background: rgba(138, 43, 226, 0.5); 
             animation: float 25s linear infinite;
             bottom: -150px; /* Start off-screen */
@@ -77,11 +74,12 @@
             z-index: 1;
         }
 
-        .skill-card {
+        .skill-card, .project-card, .certification-card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
         }
 
-        .skill-card:hover {
+        .skill-card:hover, .certification-card:hover {
             transform: translateY(-10px);
             box-shadow: 0 20px 40px rgba(138, 43, 226, 0.3);
         }
@@ -116,6 +114,24 @@
             box-shadow: 0 0 25px rgba(138, 43, 226, 0.6);
         }
         
+        /* NEW Apple-style button for modal */
+        .btn-apple {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            padding: 0.5rem 1.25rem;
+            border-radius: 9999px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .btn-apple:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+
         /* Custom scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0a0a1a; }
@@ -157,6 +173,66 @@
             background-color: rgba(185, 28, 28, 0.5); /* red-700 with opacity */
             border: 1px solid rgba(220, 38, 38, 0.7); /* red-600 */
         }
+        
+        /* Custom scrollbar for modal body */
+        #modal-body::-webkit-scrollbar { width: 6px; }
+        #modal-body::-webkit-scrollbar-track { background: transparent; }
+        #modal-body::-webkit-scrollbar-thumb { background: #8A2BE2; border-radius: 10px; }
+        #modal-body::-webkit-scrollbar-thumb:hover { background: #4B0082; }
+
+        /* Modal Styles for Gemini Modal (since it's separate) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            z-index: 1000;
+            transition: opacity 0.3s ease;
+        }
+        .modal-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
+            z-index: 1001;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-overlay.hidden,
+        .modal-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .modal-container.hidden {
+            transform: translate(-50%, -50%) scale(0.9);
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            color: #e0e0e0;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+        .modal-close-btn:hover {
+            transform: rotate(90deg);
+            color: #8A2BE2;
+        }
+
+        /* Shake animation for form error */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        .animate-shake {
+            animation: shake 0.5s ease-in-out;
+        }
     </style>
 </head>
 <body class="overflow-x-hidden">
@@ -185,6 +261,12 @@
                 <li><a href="#projects" class="text-white hover:text-violet-400 transition">Projects</a></li>
                 <li><a href="#certifications" class="text-white hover:text-violet-400 transition">Certifications</a></li>
                 <li><a href="#contact" class="text-white hover:text-violet-400 transition">Contact</a></li>
+                <!-- RE-ADDED: Download CV/Resume Icon Button -->
+                <li>
+                    <button onclick="openModal('download')" class="text-white hover:text-violet-400 transition" title="Download CV/Resume">
+                        <i class="fas fa-download text-xl"></i>
+                    </button>
+                </li>
             </ul>
             <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
                 <i class="fas fa-bars text-2xl"></i>
@@ -200,6 +282,12 @@
                 <li><a href="#projects" class="text-white hover:text-violet-400 transition mobile-link">Projects</a></li>
                 <li><a href="#certifications" class="text-white hover:text-violet-400 transition mobile-link">Certifications</a></li>
                 <li><a href="#contact" class="text-white hover:text-violet-400 transition mobile-link">Contact</a></li>
+                <!-- RE-ADDED: Download CV/Resume Mobile Link -->
+                <li>
+                    <button onclick="openModal('download')" class="text-white hover:text-violet-400 transition mobile-link">
+                        Download CV/Resume
+                    </button>
+                </li>
             </ul>
         </div>
     </header>
@@ -218,9 +306,12 @@
                     <p class="max-w-2xl mx-auto text-gray-300 mb-12 animate-fade-in">
                         I build elegant, efficient, and scalable web applications from front to back. Let's turn your ideas into reality.
                     </p>
-                    <a href="#projects" class="btn-primary text-white font-bold py-3 px-8 rounded-full text-lg inline-block animate-bounce">
-                        View My Work
-                    </a>
+                    <!-- UPDATED: Removed Download Button from Hero -->
+                    <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center" id="hero-buttons">
+                        <a href="#projects" class="btn-primary text-white font-bold py-3 px-8 rounded-full text-lg inline-block">
+                            View My Work
+                        </a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -243,6 +334,7 @@
                         <p class="text-lg">
                             When I'm not coding, you can find me [Your Hobby 1], [Your Hobby 2], or exploring [Your Interest].
                         </p>
+                        <!-- UPDATED: Removed Download Button from About -->
                     </div>
                 </div>
             </div>
@@ -286,51 +378,51 @@
                 <h2 class="text-4xl font-bold text-center mb-12 neon-text">My Tech Stack</h2>
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
                     <!-- Skill Card Example -->
-                    <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                    <div class="skill-card glass-effect p-6 text-center rounded-lg cursor-pointer" onclick="openModal('skill-react')">
                         <i class="fab fa-react text-5xl text-cyan-400 mb-4"></i>
                         <h3 class="text-xl font-semibold">React</h3>
                     </div>
-                    <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                    <div class="skill-card glass-effect p-6 text-center rounded-lg cursor-pointer" onclick="openModal('skill-node')">
                         <i class="fab fa-node-js text-5xl text-green-400 mb-4"></i>
                         <h3 class="text-xl font-semibold">Node.js</h3>
                     </div>
-                    <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                    <div class="skill-card glass-effect p-6 text-center rounded-lg cursor-pointer" onclick="openModal('skill-mongo')">
                         <i class="fas fa-database text-5xl text-orange-400 mb-4"></i>
                         <h3 class="text-xl font-semibold">MongoDB</h3>
                     </div>
-                    <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                    <div class="skill-card glass-effect p-6 text-center rounded-lg cursor-pointer" onclick="openModal('skill-python')">
                         <i class="fab fa-python text-5xl text-yellow-400 mb-4"></i>
                         <h3 class="text-xl font-semibold">Python</h3>
                     </div>
-                     <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                     <div class="skill-card glass-effect p-6 text-center rounded-lg cursor-pointer" onclick="openModal('skill-js')">
                         <i class="fab fa-js-square text-5xl text-yellow-500 mb-4"></i>
                         <h3 class="text-xl font-semibold">JavaScript</h3>
                     </div>
-                    <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                    <div class="skill-card glass-effect p-6 text-center rounded-lg cursor-pointer" onclick="openModal('skill-html')">
                         <i class="fab fa-html5 text-5xl text-red-500 mb-4"></i>
                         <h3 class="text-xl font-semibold">HTML5</h3>
                     </div>
-                    <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                    <div class="skill-card glass-effect p-6 text-center rounded-lg cursor-pointer" onclick="openModal('skill-docker')">
                         <i class="fab fa-docker text-5xl text-blue-500 mb-4"></i>
                         <h3 class="text-xl font-semibold">Docker</h3>
                     </div>
-                    <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                    <div class="skill-card glass-effect p-6 text-center rounded-lg cursor-pointer" onclick="openModal('skill-aws')">
                         <i class="fab fa-aws text-5xl text-orange-500 mb-4"></i>
                         <h3 class="text-xl font-semibold">AWS</h3>
                     </div>
-                    <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                    <div class="skill-card glass-effect p-6 text-center rounded-lg cursor-pointer" onclick="openModal('skill-git')">
                         <i class="fab fa-git-alt text-5xl text-red-600 mb-4"></i>
                         <h3 class="text-xl font-semibold">Git</h3>
                     </div>
-                    <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                    <div class="skill-card glass-effect p-6 text-center rounded-lg cursor-pointer" onclick="openModal('skill-css')">
                         <i class="fab fa-css3-alt text-5xl text-blue-400 mb-4"></i>
                         <h3 class="text-xl font-semibold">CSS3</h3>
                     </div>
-                    <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                    <div class="skill-card glass-effect p-6 text-center rounded-lg cursor-pointer" onclick="openModal('skill-sass')">
                         <i class="fab fa-sass text-5xl text-pink-400 mb-4"></i>
                         <h3 class="text-xl font-semibold">SASS</h3>
                     </div>
-                    <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                    <div class="skill-card glass-effect p-6 text-center rounded-lg cursor-pointer" onclick="openModal('skill-postgres')">
                         <i class="fas fa-database text-5xl text-blue-600 mb-4"></i>
                         <h3 class="text-xl font-semibold">PostgreSQL</h3>
                     </div>
@@ -344,36 +436,36 @@
                 <h2 class="text-4xl font-bold text-center mb-12 neon-text">Featured Projects</h2>
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
                     <!-- Project Card Example -->
-                    <div class="project-card glass-effect rounded-lg overflow-hidden">
+                    <div class="project-card glass-effect rounded-lg overflow-hidden cursor-pointer" onclick="openModal('project1')">
                         <img src="https://placehold.co/600x400/4B0082/FFFFFF?text=Project+1" alt="Project 1" class="w-full h-48 object-cover">
                         <div class="p-6">
                             <h3 class="text-2xl font-bold mb-2">E-commerce Platform</h3>
                             <p class="text-gray-400 mb-4">A full-featured e-commerce site with user authentication, product catalog, and payment integration.</p>
-                            <div class="flex justify-between items-center">
-                                <a href="#" target="_blank" class="text-violet-400 hover:underline">View Demo</a>
-                                <a href="#" target="_blank" class="text-gray-400 hover:text-white"><i class="fab fa-github text-2xl"></i></a>
+                            <div class="flex justify-between items-center" aria-hidden="true">
+                                <span class="text-violet-400 font-semibold">View Details...</span>
+                                <span class="text-gray-400"><i class="fab fa-github text-2xl"></i></span>
                             </div>
                         </div>
                     </div>
-                    <div class="project-card glass-effect rounded-lg overflow-hidden">
+                    <div class="project-card glass-effect rounded-lg overflow-hidden cursor-pointer" onclick="openModal('project2')">
                         <img src="https://placehold.co/600x400/8A2BE2/FFFFFF?text=Project+2" alt="Project 2" class="w-full h-48 object-cover">
                         <div class="p-6">
                             <h3 class="text-2xl font-bold mb-2">Task Management App</h3>
                             <p class="text-gray-400 mb-4">A collaborative task manager with real-time updates, built with React and Firebase.</p>
-                            <div class="flex justify-between items-center">
-                                <a href="#" target="_blank" class="text-violet-400 hover:underline">View Demo</a>
-                                <a href="#" target="_blank" class="text-gray-400 hover:text-white"><i class="fab fa-github text-2xl"></i></a>
+                            <div class="flex justify-between items-center" aria-hidden="true">
+                                <span class="text-violet-400 font-semibold">View Details...</span>
+                                <span class="text-gray-400"><i class="fab fa-github text-2xl"></i></span>
                             </div>
                         </div>
                     </div>
-                    <div class="project-card glass-effect rounded-lg overflow-hidden">
+                    <div class="project-card glass-effect rounded-lg overflow-hidden cursor-pointer" onclick="openModal('project3')">
                         <img src="https://placehold.co/600x400/483D8B/FFFFFF?text=Project+3" alt="Project 3" class="w-full h-48 object-cover">
                         <div class="p-6">
                             <h3 class="text-2xl font-bold mb-2">Portfolio Website</h3>
                             <p class="text-gray-400 mb-4">A personal portfolio site (like this one!) to showcase skills and projects, built with CSS animations.</p>
-                            <div class="flex justify-between items-center">
-                                <a href="#" target="_blank" class="text-violet-400 hover:underline">View Demo</a>
-                                <a href="#" target="_blank" class="text-gray-400 hover:text-white"><i class="fab fa-github text-2xl"></i></a>
+                            <div class="flex justify-between items-center" aria-hidden="true">
+                                <span class="text-violet-400 font-semibold">View Details...</span>
+                                <span class="text-gray-400"><i class="fab fa-github text-2xl"></i></span>
                             </div>
                         </div>
                     </div>
@@ -388,25 +480,25 @@
                 <h2 class="text-4xl font-bold text-center mb-12 neon-text">Certifications & Education</h2>
                 <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
                     <!-- Certification Card -->
-                    <div class="skill-card glass-effect p-6 rounded-lg flex items-center gap-6">
+                    <div class="certification-card skill-card glass-effect p-6 rounded-lg flex items-center gap-6 cursor-pointer" onclick="openModal('cert1')">
                         <i class="fas fa-award text-5xl text-yellow-400"></i>
                         <div>
                             <h3 class="text-xl font-semibold">[Certification Name, e.g., AWS Certified Developer]</h3>
                             <p class="text-gray-400">Issuing Body: [e.g., Amazon Web Services]</p>
-                            <a href="[LINK_TO_CREDENTIAL]" target="_blank" class="text-violet-400 hover:underline mt-2 inline-block">View Credential</a>
+                            <span class="text-violet-400 mt-2 inline-block font-semibold">View Details...</span>
                         </div>
                     </div>
                     <!-- Certification Card -->
-                    <div class="skill-card glass-effect p-6 rounded-lg flex items-center gap-6">
+                    <div class="certification-card skill-card glass-effect p-6 rounded-lg flex items-center gap-6 cursor-pointer" onclick="openModal('cert2')">
                         <i class="fas fa-award text-5xl text-yellow-400"></i>
                         <div>
                             <h3 class="text-xl font-semibold">[Another Certification, e.g., Google Professional]</h3>
                             <p class="text-gray-400">Issuing Body: [e.g., Google / Coursera]</p>
-                            <a href="[LINK_TO_CREDENTIAL]" target="_blank" class="text-violet-400 hover:underline mt-2 inline-block">View Credential</a>
+                            <span class="text-violet-400 mt-2 inline-block font-semibold">View Details...</span>
                         </div>
                     </div>
                     <!-- Education Card -->
-                    <div class="skill-card glass-effect p-6 rounded-lg flex items-center gap-6 md:col-span-2">
+                    <div class="certification-card skill-card glass-effect p-6 rounded-lg flex items-center gap-6 md:col-span-2 cursor-pointer" onclick="openModal('edu')">
                         <i class="fas fa-graduation-cap text-5xl text-cyan-400"></i>
                         <div>
                             <h3 class="text-xl font-semibold">[Your Degree, e.g., B.S. in Computer Science]</h3>
@@ -434,7 +526,16 @@
                             <input type="text" name="name" placeholder="Your Name" required class="w-full bg-gray-800 border border-violet-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-violet-500">
                             <input type="email" name="email" placeholder="Your Email" required class="w-full bg-gray-800 border border-violet-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-violet-500">
                         </div>
-                        <textarea name="message" placeholder="Your Message" rows="5" required class="w-full bg-gray-800 border border-violet-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-violet-500"></textarea>
+                        
+                        <!-- RE-ADDED: AI Draft Helper Button -->
+                        <div class="flex justify-between items-center -mb-2">
+                            <label for="message-textarea" class="text-gray-300 text-sm">Your Message</label>
+                            <button type="button" id="open-gemini-modal" class="text-sm text-violet-400 hover:text-violet-300 transition focus:outline-none">
+                                ✨ Help me draft a message
+                            </button>
+                        </div>
+                        <textarea id="message-textarea" name="message" placeholder="Your Message" rows="5" required class="w-full bg-gray-800 border border-violet-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-violet-500"></textarea>
+                        
                         <button type="submit" class="btn-primary w-full text-white font-bold py-3 px-8 rounded-lg text-lg">
                             Send Message
                         </button>
@@ -457,11 +558,106 @@
         <i class="fas fa-arrow-up text-white"></i>
     </a>
 
-    <!-- Removed Three.js script -->
+    <!-- NEW MODAL COMPONENT (from user's new file) -->
+    <div id="modal-backdrop" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div id="modal-panel" class="glass-effect w-full max-w-3xl rounded-xl shadow-2xl shadow-violet-900/20 relative border-violet-500 border">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center p-6 border-b border-white/10">
+                <h3 id="modal-title" class="text-2xl font-bold text-white"></h3>
+                <button id="modal-close-btn" class="text-gray-400 hover:text-white transition-colors">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <!-- Modal Body -->
+            <div id="modal-body" class="p-6 max-h-[70vh] overflow-y-auto">
+                <!-- Content will be injected by JS -->
+            </div>
+            <!-- Modal Footer (for buttons) -->
+            <div id="modal-footer" class="p-6 border-t border-white/10 flex gap-4 justify-end">
+                <!-- Buttons will be injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- RE-ADDED: Gemini AI Modal (as a separate modal) -->
+    <div id="gemini-modal-overlay" class="modal-overlay hidden"></div>
+    <div id="gemini-modal-container" class="modal-container glass-effect rounded-lg w-11/12 max-w-lg p-8 relative hidden">
+        <button id="gemini-modal-close-btn" class="modal-close-btn focus:outline-none">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="flex flex-col items-center text-center">
+            <h3 class="text-3xl font-bold text-white mb-4">AI Message Assistant ✨</h3>
+            <p class="text-gray-300 text-lg mb-6">What's on your mind? I'll draft a professional message for you.</p>
+            
+            <input type="text" id="gemini-prompt" placeholder="e.g., 'I have a job offer for a React role'" class="w-full bg-gray-800 border border-violet-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 mb-4">
+            
+            <textarea id="gemini-result" rows="6" class="w-full bg-gray-900 border border-violet-700 rounded-lg px-4 py-2 text-gray-300 mb-4 hidden" readonly></textarea>
+
+            <div id="gemini-loader" class="hidden mb-4">
+                <i class="fas fa-spinner animate-spin text-violet-400 text-3xl"></i>
+                <p class="text-gray-400 mt-2">Generating draft...</p>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-4 w-full justify-center">
+                <button id="gemini-generate-btn" class="btn-primary text-white font-bold py-3 px-8 rounded-full text-lg inline-block w-full sm:w-auto">
+                    Generate Draft
+                </button>
+                <button id="gemini-use-draft-btn" class="btn-apple text-white font-bold py-3 px-8 rounded-full text-lg inline-block w-full sm:w-auto hidden">
+                    Use This Draft
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- End of Gemini AI Modal -->
+
+
     <script src="https://unpkg.com/scrollreveal"></script>
     <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
 
     <script>
+        // --- RE-ADDED: Gemini API Call Function ---
+        async function callGeminiAPI(systemPrompt, userQuery, maxRetries = 3) {
+            const apiKey = ""; // Leave as-is
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                },
+            };
+
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    const candidate = result.candidates?.[0];
+
+                    if (candidate && candidate.content?.parts?.[0]?.text) {
+                        return candidate.content.parts[0].text;
+                    } else {
+                        throw new Error("Invalid API response structure.");
+                    }
+                } catch (error) {
+                    console.error(`Gemini API call attempt ${attempt} failed:`, error);
+                    if (attempt === maxRetries) {
+                        return "Sorry, I couldn't generate a draft right now. Please try again later.";
+                    }
+                    // Exponential backoff
+                    await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+                }
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             // --- Mobile Menu ---
             const mobileMenuBtn = document.getElementById('mobile-menu-btn');
@@ -472,6 +668,7 @@
                 mobileMenu.classList.toggle('hidden');
             });
             mobileLinks.forEach(link => {
+                // MODIFIED: Close menu for links OR buttons that open modals
                 link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
             });
 
@@ -479,12 +676,10 @@
             const header = document.getElementById('header');
             window.addEventListener('scroll', () => {
                 if (window.scrollY > 50) {
-                    header.classList.add('glass-effect');
-                    header.classList.add('py-2');
+                    header.classList.add('glass-effect', 'py-2');
                     header.classList.remove('py-4');
                 } else {
-                    header.classList.remove('glass-effect');
-                    header.classList.remove('py-2');
+                    header.classList.remove('glass-effect', 'py-2');
                     header.classList.add('py-4');
                 }
             });
@@ -498,8 +693,171 @@
                 loop: true
             });
 
-            // --- REMOVED Three.js Animated Background section ---
-            // The new 2D background is 100% CSS and needs no JavaScript.
+            // --- NEW MODAL LOGIC (from user's file) ---
+            const modalBackdrop = document.getElementById('modal-backdrop');
+            const modalPanel = document.getElementById('modal-panel');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+            const modalFooter = document.getElementById('modal-footer');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+
+            // Central database for all modal content
+            const modalData = {
+                // --- PROJECTS ---
+                'project1': {
+                    title: 'E-commerce Platform',
+                    body: `
+                        <img src="https://placehold.co/600x300/4B0082/FFFFFF?text=Project+1+Detail" alt="Project 1" class="w-full h-48 object-cover rounded-lg mb-4">
+                        <p class="text-gray-300 text-lg mb-4">This was a full-featured e-commerce site built from scratch. It includes complete user authentication, a dynamic product catalog, and a secure payment pipeline using Stripe.</p>
+                        <h4 class="text-xl font-semibold text-white mb-2">Key Features:</h4>
+                        <ul class="list-disc list-inside text-gray-400 mb-4 space-y-1">
+                            <li>User sign-up, login, and profile management (JWT).</li>
+                            <li>Admin panel for adding/editing products.</li>
+                            <li>Shopping cart and wishlist functionality.</li>
+                            <li>Integration with Stripe API for payments.</li>
+                        </ul>
+                        <h4 class="text-xl font-semibold text-white mb-2">Technologies Used:</h4>
+                        <p class="text-gray-400">React, Node.js, Express, MongoDB, Stripe API, Tailwind CSS</p>
+                    `,
+                    footer: `
+                        <a href="#" target="_blank" class="btn-primary text-white font-bold py-2 px-6 rounded-full text-base"><i class="fas fa-external-link-alt mr-2"></i>View Demo</a>
+                        <a href="#" target="_blank" class="btn-apple"><i class="fab fa-github mr-2"></i>View Code</a>
+                    `
+                },
+                'project2': {
+                    title: 'Task Management App',
+                    body: '<p class="text-gray-300 text-lg">Add your detailed description for the Task Management App here. Talk about the challenges, the real-time features, and what you learned.</p>',
+                    footer: `
+                        <a href="#" target="_blank" class="btn-primary text-white font-bold py-2 px-6 rounded-full text-base"><i class="fas fa-external-link-alt mr-2"></i>View Demo</a>
+                        <a href="#" target="_blank" class="btn-apple"><i class="fab fa-github mr-2"></i>View Code</a>
+                    `
+                },
+                'project3': {
+                    title: 'Portfolio Website',
+                    body: '<p class="text-gray-300 text-lg">This is the very portfolio you are looking at! It was built using HTML, Tailwind CSS, and plain JavaScript for all animations, including the lightweight CSS background and the modal popups.</p>',
+                    footer: `
+                        <a href="#" target="_blank" class="btn-apple"><i class="fab fa-github mr-2"></i>View Code</a>
+                    `
+                },
+                // --- SKILLS ---
+                'skill-react': {
+                    title: 'React',
+                    body: `
+                        <div class="flex flex-col sm:flex-row items-center gap-6">
+                            <i class="fab fa-react text-8xl text-cyan-400 mb-4 sm:mb-0"></i>
+                            <p class="text-gray-300 text-lg">I have extensive experience building dynamic, single-page applications with React. My skills include:
+                            <ul class="list-disc list-inside text-gray-400 mt-2 space-y-1">
+                                <li>Proficiency with Hooks (useState, useEffect, useContext).</li>
+                                <li>State management using Redux, Zustand, and Context API.</li>
+                                <li>Building component libraries and using frameworks like Next.js.</li>
+                                <li>Optimizing performance with code-splitting and memoization.</li>
+                            </ul>
+                        </p></div>
+                    `,
+                    footer: `<button onclick="closeModal()" class="btn-apple">Close</button>`
+                },
+                'skill-node': { title: 'Node.js', body: '<p class="text-gray-300 text-lg">Detailed description for Node.js...</p>', footer: `<button onclick="closeModal()" class="btn-apple">Close</button>`},
+                'skill-mongo': { title: 'MongoDB', body: '<p class="text-gray-300 text-lg">Detailed description for MongoDB...</p>', footer: `<button onclick="closeModal()" class="btn-apple">Close</button>`},
+                'skill-python': { title: 'Python', body: '<p class="text-gray-300 text-lg">Detailed description for Python...</p>', footer: `<button onclick="closeModal()" class="btn-apple">Close</button>`},
+                'skill-js': { title: 'JavaScript', body: '<p class="text-gray-300 text-lg">Detailed description for JavaScript...</p>', footer: `<button onclick="closeModal()" class="btn-apple">Close</button>`},
+                'skill-html': { title: 'HTML5', body: '<p class="text-gray-300 text-lg">Detailed description for HTML5...</p>', footer: `<button onclick="closeModal()" class="btn-apple">Close</button>`},
+                'skill-docker': { title: 'Docker', body: '<p class="text-gray-300 text-lg">Detailed description for Docker...</p>', footer: `<button onclick="closeModal()" class="btn-apple">Close</button>`},
+                'skill-aws': { title: 'AWS', body: '<p class="text-gray-300 text-lg">Detailed description for AWS...</p>', footer: `<button onclick="closeModal()" class="btn-apple">Close</button>`},
+                'skill-git': { title: 'Git', body: '<p class="text-gray-300 text-lg">Detailed description for Git...</p>', footer: `<button onclick="closeModal()" class="btn-apple">Close</button>`},
+                'skill-css': { title: 'CSS3', body: '<p class="text-gray-300 text-lg">Detailed description for CSS3...</p>', footer: `<button onclick="closeModal()" class="btn-apple">Close</button>`},
+                'skill-sass': { title: 'SASS', body: '<p class="text-gray-300 text-lg">Detailed description for SASS...</p>', footer: `<button onclick="closeModal()" class="btn-apple">Close</button>`},
+                'skill-postgres': { title: 'PostgreSQL', body: '<p class="text-gray-300 text-lg">Detailed description for PostgreSQL...</p>', footer: `<button onclick="closeModal()" class="btn-apple">Close</button>`},
+                
+                // --- CERTIFICATIONS ---
+                'cert1': {
+                    title: 'AWS Certified Developer',
+                    body: `
+                        <img src="https://placehold.co/600x300/FF9900/FFFFFF?text=AWS+Badge" alt="AWS Badge" class="w-full h-48 object-contain rounded-lg mb-4 bg-white/10 p-4">
+                        <p class="text-gray-300 text-lg mb-4">This certification validates my ability to design, develop, and deploy cloud-based solutions using AWS. I demonstrated proficiency in core AWS services, including Lambda, S3, DynamoDB, and API Gateway.</p>
+                        <p class="text-gray-400"><span class="font-semibold text-white">Issuing Body:</span> Amazon Web Services</p>
+                        <p class="text-gray-400"><span class="font-semibold text-white">Issued:</span> [Date]</p>
+                    `,
+                    footer: `
+                        <a href="[LINK_TO_CREDENTIAL]" target="_blank" class="btn-primary text-white font-bold py-2 px-6 rounded-full text-base"><i class="fas fa-external-link-alt mr-2"></i>View Credential</a>
+                        <button onclick="closeModal()" class="btn-apple">Close</button>
+                    `
+                },
+                'cert2': {
+                    title: '[Another Certification]',
+                    body: '<p class="text-gray-300 text-lg">Detailed description for Google certification...</p>',
+                    footer: `
+                        <a href="[LINK_TO_CREDENTIAL]" target="_blank" class="btn-primary text-white font-bold py-2 px-6 rounded-full text-base"><i class="fas fa-external-link-alt mr-2"></i>View Credential</a>
+                        <button onclick="closeModal()" class="btn-apple">Close</button>
+                    `
+                },
+                'edu': {
+                    title: '[Your Degree, e.g., B.S. in Computer Science]',
+                    body: `
+                        <p class="text-gray-300 text-lg mb-4">Detailed description for Education. You can mention key coursework, your thesis, or academic achievements here.</p>
+                        <p class="text-gray-400"><span class="font-semibold text-white">University:</span> [University Name]</p>
+                        <p class="text-gray-400"><span class="font-semibold text-white">Graduation:</span> [Year, e.g., 2016 - 2020]</p>
+                    `,
+                    footer: `
+                        <a href="[YOUR_RESUME_URL.pdf]" download="Your_Name_Resume.pdf" class="btn-apple"><i class="fas fa-download mr-2"></i>Download Resume</a>
+                        <button onclick="closeModal()" class="btn-apple">Close</button>
+                    `
+                },
+                // --- RE-ADDED: Download Modal Data ---
+                'download': {
+                    title: 'Download',
+                    body: '<p class="text-gray-300 text-lg">Which document would you like to download?</p>',
+                    footer: `
+                        <a href="[YOUR_CV_LINK].pdf" download="[Your_Name]_CV.pdf" class="btn-primary text-white font-bold py-2 px-6 rounded-full text-base">
+                            <i class="fas fa-file-alt mr-2"></i> Download CV
+                        </a>
+                        <a href="[YOUR_RESUME_LINK].pdf" download="[Your_Name]_Resume.pdf" class="btn-apple">
+                            <i class="fas fa-file-invoice mr-2"></i> Download Resume
+                        </a>
+                    `
+                }
+            };
+
+            // Global openModal function
+            window.openModal = (key) => {
+                const data = modalData[key];
+                if (!data) {
+                    console.error('No modal data found for key:', key);
+                    return;
+                }
+                
+                // Clear previous content
+                modalTitle.innerHTML = '';
+                modalBody.innerHTML = '';
+                modalFooter.innerHTML = '';
+
+                // Populate new content
+                modalTitle.textContent = data.title;
+                modalBody.innerHTML = data.body;
+
+                if (data.footer) {
+                    modalFooter.innerHTML = data.footer;
+                    modalFooter.classList.remove('hidden');
+                } else {
+                    modalFooter.classList.add('hidden');
+                }
+
+                modalBackdrop.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // Prevent background scroll
+            };
+
+            // Global closeModal function (needed for buttons inside modal)
+            window.closeModal = () => {
+                modalBackdrop.classList.add('hidden');
+                document.body.style.overflow = 'auto'; // Restore background scroll
+            };
+
+            // Event Listeners for main modal
+            modalCloseBtn.addEventListener('click', window.closeModal);
+            modalBackdrop.addEventListener('click', (e) => {
+                if (e.target === modalBackdrop) {
+                    window.closeModal();
+                }
+            });
 
             // --- ScrollReveal Animations ---
             const sr = ScrollReveal({
@@ -512,7 +870,7 @@
             sr.reveal('.animate-fade-in-down', { origin: 'top' });
             sr.reveal('.animate-fade-in-up', { origin: 'bottom', delay: 200 });
             sr.reveal('.animate-fade-in', { delay: 400 });
-            sr.reveal('.animate-bounce', { delay: 600, scale: 0.5, distance: '0px' });
+            sr.reveal('#hero-buttons', { delay: 600, origin: 'bottom' });
             sr.reveal('#about img', { origin: 'left', delay: 200 });
             sr.reveal('#about .glass-effect', { origin: 'right', delay: 400 });
             sr.reveal('#experience .glass-effect', { origin: 'bottom', interval: 150 });
@@ -538,11 +896,9 @@
             contactForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 
-                // --- Replace this with your actual form submission logic (e.g., Formspree) ---
                 // Simulating a successful submission for this demo
                 const isSuccess = true; 
-                // -----------------------------------------------------------
-
+                
                 if (isSuccess) {
                     messageDiv.textContent = 'Thank you for your message! I will get back to you soon.';
                     messageDiv.className = 'p-4 rounded-lg text-white text-center mb-4 success'; // Apply success styles
@@ -561,6 +917,80 @@
                     messageDiv.className = 'hidden text-center mb-4 p-4 rounded-lg text-white'; 
                 }, 5000);
             });
+
+            // --- RE-ADDED: Gemini AI Modal Logic ---
+            const geminiModalOverlay = document.getElementById('gemini-modal-overlay');
+            const geminiModalContainer = document.getElementById('gemini-modal-container');
+            const geminiModalCloseBtn = document.getElementById('gemini-modal-close-btn');
+            const openGeminiModalBtn = document.getElementById('open-gemini-modal');
+            const geminiGenerateBtn = document.getElementById('gemini-generate-btn');
+            const geminiUseDraftBtn = document.getElementById('gemini-use-draft-btn');
+            const geminiPromptInput = document.getElementById('gemini-prompt');
+            const geminiResultTextarea = document.getElementById('gemini-result');
+            const geminiLoader = document.getElementById('gemini-loader');
+            const contactMessageTextarea = document.getElementById('message-textarea');
+
+            const openGeminiModal = () => {
+                geminiModalOverlay.classList.remove('hidden');
+                geminiModalContainer.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // Prevent background scroll
+            };
+
+            const closeGeminiModal = () => {
+                geminiModalOverlay.classList.add('hidden');
+                geminiModalContainer.classList.add('hidden');
+                document.body.style.overflow = 'auto'; // Restore background scroll
+                geminiPromptInput.value = '';
+                geminiResultTextarea.value = '';
+                geminiResultTextarea.classList.add('hidden');
+                geminiUseDraftBtn.classList.add('hidden');
+                geminiGenerateBtn.classList.remove('hidden');
+                geminiLoader.classList.add('hidden');
+            };
+
+            openGeminiModalBtn.addEventListener('click', openGeminiModal);
+            geminiModalCloseBtn.addEventListener('click', closeGeminiModal);
+            geminiModalOverlay.addEventListener('click', closeGeminiModal);
+            geminiModalContainer.addEventListener('click', (e) => e.stopPropagation());
+
+            geminiGenerateBtn.addEventListener('click', async () => {
+                const userIdea = geminiPromptInput.value;
+                if (!userIdea) {
+                    geminiPromptInput.classList.add('animate-shake');
+                    setTimeout(() => geminiPromptInput.classList.remove('animate-shake'), 500);
+                    return;
+                }
+
+                geminiLoader.classList.remove('hidden');
+                geminiGenerateBtn.classList.add('hidden');
+                geminiResultTextarea.classList.add('hidden');
+
+                const portfolioOwnerName = document.querySelector('header nav a.text-3xl').textContent.trim() || "[Your Name]";
+                
+                const systemPrompt = `You are a professional communication assistant. A visitor to ${portfolioOwnerName}'s portfolio website wants to send them a message. The visitor's idea is: "${userIdea}".
+Your task is to draft a concise, polite, and professional message (about 3-4 sentences) from the visitor *to* ${portfolioOwnerName}.
+- Start with "Hi ${portfolioOwnerName},"
+- Clearly state the visitor's purpose (based on their idea).
+- End with a friendly closing like "Best regards," or "Looking forward to hearing from you,".
+- Do NOT include a placeholder for the visitor's name. Just provide the message body.`;
+                
+                const userQuery = `Visitor's idea: "${userIdea}"`;
+
+                // Call the Gemini API
+                const draft = await callGeminiAPI(systemPrompt, userQuery);
+
+                geminiLoader.classList.add('hidden');
+                geminiResultTextarea.value = draft;
+                geminiResultTextarea.classList.remove('hidden');
+                geminiUseDraftBtn.classList.remove('hidden');
+            });
+
+            geminiUseDraftBtn.addEventListener('click', () => {
+                contactMessageTextarea.value = geminiResultTextarea.value;
+                contactMessageTextarea.focus();
+                closeGeminiModal();
+            });
+
         });
     </script>
 </body>
