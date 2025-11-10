@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[Your Name] - Professional Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0a0a1a;
+            color: #e0e0e0;
+        }
+
+        /* * NEW 2D ANIMATED BACKGROUND
+         * Replaces the 3D canvas
+        */
+        #floating-shapes-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Sits behind all content */
+            overflow: hidden;
+            background: #0a0a1a;
+        }
+
+        .shape {
+            position: absolute;
+            display: block;
+            list-style: none;
+            width: 20px;
+            height: 20px;
+            /* Use the theme's purple color with a soft blur */
+            background: rgba(138, 43, 226, 0.5); 
+            animation: float 25s linear infinite;
+            bottom: -150px; /* Start off-screen */
+            border-radius: 50%;
+            filter: blur(8px);
+        }
+
+        .shape:nth-child(1) { left: 25%; width: 80px; height: 80px; animation-delay: 0s; }
+        .shape:nth-child(2) { left: 10%; width: 20px; height: 20px; animation-delay: 2s; animation-duration: 12s; }
+        .shape:nth-child(3) { left: 70%; width: 20px; height: 20px; animation-delay: 4s; }
+        .shape:nth-child(4) { left: 40%; width: 60px; height: 60px; animation-delay: 0s; animation-duration: 18s; }
+        .shape:nth-child(5) { left: 65%; width: 20px; height: 20px; animation-delay: 0s; }
+        .shape:nth-child(6) { left: 85%; width: 120px; height: 120px; animation-delay: 5s; animation-duration: 20s; }
+        .shape:nth-child(7) { left: 15%; width: 40px; height: 40px; animation-delay: 10s; }
+        .shape:nth-child(8) { left: 50%; width: 100px; height: 100px; animation-delay: 15s; animation-duration: 30s; }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-1000px) rotate(720deg); /* Move up and rotate */
+                opacity: 0;
+            }
+        }
+        /* End of new background */
+
+
+        .glass-effect {
+            background: rgba(10, 10, 26, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section {
+            position: relative;
+            z-index: 1;
+        }
+
+        .skill-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(138, 43, 226, 0.3);
+        }
+
+        .project-card {
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px) rotateX(10deg) rotateY(5deg);
+            box-shadow: 0 25px 50px rgba(138, 43, 226, 0.4);
+        }
+        
+        .neon-text {
+            text-shadow:
+                0 0 7px #8A2BE2,
+                0 0 10px #8A2BE2,
+                0 0 21px #8A2BE2,
+                0 0 42px #4B0082,
+                0 0 82px #4B0082,
+                0 0 92px #4B0082;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #8A2BE2, #4B0082);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(138, 43, 226, 0.6);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a1a; }
+        ::-webkit-scrollbar-thumb { background: #8A2BE2; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4B0082; }
+
+        /* Typing cursor effect */
+        .typed-cursor {
+            opacity: 1;
+            animation: blink 0.7s infinite;
+        }
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        #back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            transition: opacity 0.3s, transform 0.3s;
+            opacity: 0;
+            transform: translateY(20px);
+            z-index: 100;
+        }
+
+        #back-to-top.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Contact Form Message Styles */
+        #contact-message.success {
+            background-color: rgba(22, 163, 74, 0.5); /* green-700 with opacity */
+            border: 1px solid rgba(34, 197, 94, 0.7); /* green-500 */
+        }
+        #contact-message.error {
+            background-color: rgba(185, 28, 28, 0.5); /* red-700 with opacity */
+            border: 1px solid rgba(220, 38, 38, 0.7); /* red-600 */
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <!-- New 2D Animated Background -->
+    <div id="floating-shapes-bg">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <!-- Header -->
+    <header id="header" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 py-4">
+        <nav class="container mx-auto px-6 flex justify-between items-center">
+            <a href="#" class="text-3xl font-bold text-white">[Your Name]</a>
+            <ul class="hidden md:flex items-center space-x-8">
+                <li><a href="#home" class="text-white hover:text-violet-400 transition">Home</a></li>
+                <li><a href="#about" class="text-white hover:text-violet-400 transition">About</a></li>
+                <li><a href="#experience" class="text-white hover:text-violet-400 transition">Experience</a></li>
+                <li><a href="#skills" class="text-white hover:text-violet-400 transition">Skills</a></li>
+                <li><a href="#projects" class="text-white hover:text-violet-400 transition">Projects</a></li>
+                <li><a href="#certifications" class="text-white hover:text-violet-400 transition">Certifications</a></li>
+                <li><a href="#contact" class="text-white hover:text-violet-400 transition">Contact</a></li>
+            </ul>
+            <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </nav>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden glass-effect">
+            <ul class="flex flex-col items-center space-y-4 py-4">
+                <li><a href="#home" class="text-white hover:text-violet-400 transition mobile-link">Home</a></li>
+                <li><a href="#about" class="text-white hover:text-violet-400 transition mobile-link">About</a></li>
+                <li><a href="#experience" class="text-white hover:text-violet-400 transition mobile-link">Experience</a></li>
+                <li><a href="#skills" class="text-white hover:text-violet-400 transition mobile-link">Skills</a></li>
+                <li><a href="#projects" class="text-white hover:text-violet-400 transition mobile-link">Projects</a></li>
+                <li><a href="#certifications" class="text-white hover:text-violet-400 transition mobile-link">Certifications</a></li>
+                <li><a href="#contact" class="text-white hover:text-violet-400 transition mobile-link">Contact</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="section min-h-screen flex items-center">
+            <div class="container mx-auto px-6 text-center">
+                <div class="max-w-4xl mx-auto">
+                    <h1 class="text-5xl md:text-7xl font-extrabold text-white leading-tight mb-4 animate-fade-in-down">
+                        Hi, I'm [Your Name]
+                    </h1>
+                    <p class="text-2xl md:text-3xl font-light text-violet-300 mb-8 animate-fade-in-up">
+                        <span id="typed-text" class="neon-text"></span>
+                    </p>
+                    <p class="max-w-2xl mx-auto text-gray-300 mb-12 animate-fade-in">
+                        I build elegant, efficient, and scalable web applications from front to back. Let's turn your ideas into reality.
+                    </p>
+                    <a href="#projects" class="btn-primary text-white font-bold py-3 px-8 rounded-full text-lg inline-block animate-bounce">
+                        View My Work
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="section py-20">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl font-bold text-center mb-12 neon-text">About Me</h2>
+                <div class="flex flex-col md:flex-row items-center gap-12">
+                    <div class="md:w-1/3 text-center">
+                        <img src="https://placehold.co/400x400/8A2BE2/FFFFFF?text=JD" alt="[Your Name]" class="rounded-full w-64 h-64 mx-auto border-4 border-violet-500 shadow-lg hover:scale-105 transition-transform duration-300">
+                    </div>
+                    <div class="md:w-2/3 glass-effect p-8 rounded-lg">
+                        <p class="text-lg mb-4">
+                            Hello! I'm [Your Name], a passionate full-stack developer with a love for creating beautiful and functional digital solutions. My journey into code started years ago, and since then, I've been obsessed with building things for the web.
+                        </p>
+                        <p class="text-lg mb-4">
+                            I specialize in both front-end and back-end development, which means I can take a project from concept to a fully-realized product. I thrive on challenges and am constantly learning new technologies to stay at the forefront of web development.
+                        </p>
+                        <p class="text-lg">
+                            When I'm not coding, you can find me [Your Hobby 1], [Your Hobby 2], or exploring [Your Interest].
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Experience Section -->
+        <section id="experience" class="section py-20 bg-black bg-opacity-20">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl font-bold text-center mb-12 neon-text">Work Experience</h2>
+                <div class="max-w-4xl mx-auto space-y-8">
+                    <!-- Experience Card 1 -->
+                    <div class="glass-effect p-8 rounded-lg flex flex-col sm:flex-row gap-6 hover:border-violet-500 border-transparent border transition-all duration-300">
+                        <div class="text-violet-400 text-3xl mt-1 text-center sm:text-left"><i class="fas fa-briefcase"></i></div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white">[Job Title, e.g., Senior Developer]</h3>
+                            <p class="text-lg text-violet-300 mb-2">[Company Name] | [Dates, e.g., 2022 - Present]</p>
+                            <p class="text-gray-400">Describe your key responsibilities and achievements. Use bullet points for clarity.</p>
+                            <ul class="list-disc list-inside text-gray-400 mt-2 space-y-1">
+                                <li>Led the development of a new microservice, reducing API response time by 30%.</li>
+                                <li>Mentored 3 junior developers, fostering team growth and code quality.</li>
+                                <li>Collaborated with product managers to define and ship new features.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Experience Card 2 -->
+                    <div class="glass-effect p-8 rounded-lg flex flex-col sm:flex-row gap-6 hover:border-violet-500 border-transparent border transition-all duration-300">
+                        <div class="text-violet-400 text-3xl mt-1 text-center sm:text-left"><i class="fas fa-briefcase"></i></div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white">[Job Title, e.g., Junior Developer]</h3>
+                            <p class="text-lg text-violet-300 mb-2">[Previous Company] | [Dates, e.g., 2020 - 2022]</p>
+                            <p class="text-gray-400">Gained experience in React, Node.js, and CI/CD pipelines. Assisted the team in bug fixing and feature development, contributing to a 15% reduction in support tickets.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section id="skills" class="section py-20">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl font-bold text-center mb-12 neon-text">My Tech Stack</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
+                    <!-- Skill Card Example -->
+                    <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                        <i class="fab fa-react text-5xl text-cyan-400 mb-4"></i>
+                        <h3 class="text-xl font-semibold">React</h3>
+                    </div>
+                    <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                        <i class="fab fa-node-js text-5xl text-green-400 mb-4"></i>
+                        <h3 class="text-xl font-semibold">Node.js</h3>
+                    </div>
+                    <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                        <i class="fas fa-database text-5xl text-orange-400 mb-4"></i>
+                        <h3 class="text-xl font-semibold">MongoDB</h3>
+                    </div>
+                    <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                        <i class="fab fa-python text-5xl text-yellow-400 mb-4"></i>
+                        <h3 class="text-xl font-semibold">Python</h3>
+                    </div>
+                     <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                        <i class="fab fa-js-square text-5xl text-yellow-500 mb-4"></i>
+                        <h3 class="text-xl font-semibold">JavaScript</h3>
+                    </div>
+                    <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                        <i class="fab fa-html5 text-5xl text-red-500 mb-4"></i>
+                        <h3 class="text-xl font-semibold">HTML5</h3>
+                    </div>
+                    <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                        <i class="fab fa-docker text-5xl text-blue-500 mb-4"></i>
+                        <h3 class="text-xl font-semibold">Docker</h3>
+                    </div>
+                    <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                        <i class="fab fa-aws text-5xl text-orange-500 mb-4"></i>
+                        <h3 class="text-xl font-semibold">AWS</h3>
+                    </div>
+                    <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                        <i class="fab fa-git-alt text-5xl text-red-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold">Git</h3>
+                    </div>
+                    <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                        <i class="fab fa-css3-alt text-5xl text-blue-400 mb-4"></i>
+                        <h3 class="text-xl font-semibold">CSS3</h3>
+                    </div>
+                    <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                        <i class="fab fa-sass text-5xl text-pink-400 mb-4"></i>
+                        <h3 class="text-xl font-semibold">SASS</h3>
+                    </div>
+                    <div class="skill-card glass-effect p-6 text-center rounded-lg">
+                        <i class="fas fa-database text-5xl text-blue-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold">PostgreSQL</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="section py-20 bg-black bg-opacity-20">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl font-bold text-center mb-12 neon-text">Featured Projects</h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
+                    <!-- Project Card Example -->
+                    <div class="project-card glass-effect rounded-lg overflow-hidden">
+                        <img src="https://placehold.co/600x400/4B0082/FFFFFF?text=Project+1" alt="Project 1" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2">E-commerce Platform</h3>
+                            <p class="text-gray-400 mb-4">A full-featured e-commerce site with user authentication, product catalog, and payment integration.</p>
+                            <div class="flex justify-between items-center">
+                                <a href="#" target="_blank" class="text-violet-400 hover:underline">View Demo</a>
+                                <a href="#" target="_blank" class="text-gray-400 hover:text-white"><i class="fab fa-github text-2xl"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-card glass-effect rounded-lg overflow-hidden">
+                        <img src="https://placehold.co/600x400/8A2BE2/FFFFFF?text=Project+2" alt="Project 2" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2">Task Management App</h3>
+                            <p class="text-gray-400 mb-4">A collaborative task manager with real-time updates, built with React and Firebase.</p>
+                            <div class="flex justify-between items-center">
+                                <a href="#" target="_blank" class="text-violet-400 hover:underline">View Demo</a>
+                                <a href="#" target="_blank" class="text-gray-400 hover:text-white"><i class="fab fa-github text-2xl"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-card glass-effect rounded-lg overflow-hidden">
+                        <img src="https://placehold.co/600x400/483D8B/FFFFFF?text=Project+3" alt="Project 3" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2">Portfolio Website</h3>
+                            <p class="text-gray-400 mb-4">A personal portfolio site (like this one!) to showcase skills and projects, built with CSS animations.</p>
+                            <div class="flex justify-between items-center">
+                                <a href="#" target="_blank" class="text-violet-400 hover:underline">View Demo</a>
+                                <a href="#" target="_blank" class="text-gray-400 hover:text-white"><i class="fab fa-github text-2xl"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Add more projects -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Certifications Section -->
+        <section id="certifications" class="section py-20">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl font-bold text-center mb-12 neon-text">Certifications & Education</h2>
+                <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                    <!-- Certification Card -->
+                    <div class="skill-card glass-effect p-6 rounded-lg flex items-center gap-6">
+                        <i class="fas fa-award text-5xl text-yellow-400"></i>
+                        <div>
+                            <h3 class="text-xl font-semibold">[Certification Name, e.g., AWS Certified Developer]</h3>
+                            <p class="text-gray-400">Issuing Body: [e.g., Amazon Web Services]</p>
+                            <a href="[LINK_TO_CREDENTIAL]" target="_blank" class="text-violet-400 hover:underline mt-2 inline-block">View Credential</a>
+                        </div>
+                    </div>
+                    <!-- Certification Card -->
+                    <div class="skill-card glass-effect p-6 rounded-lg flex items-center gap-6">
+                        <i class="fas fa-award text-5xl text-yellow-400"></i>
+                        <div>
+                            <h3 class="text-xl font-semibold">[Another Certification, e.g., Google Professional]</h3>
+                            <p class="text-gray-400">Issuing Body: [e.g., Google / Coursera]</p>
+                            <a href="[LINK_TO_CREDENTIAL]" target="_blank" class="text-violet-400 hover:underline mt-2 inline-block">View Credential</a>
+                        </div>
+                    </div>
+                    <!-- Education Card -->
+                    <div class="skill-card glass-effect p-6 rounded-lg flex items-center gap-6 md:col-span-2">
+                        <i class="fas fa-graduation-cap text-5xl text-cyan-400"></i>
+                        <div>
+                            <h3 class="text-xl font-semibold">[Your Degree, e.g., B.S. in Computer Science]</h3>
+                            <p class="text-gray-400">[University Name] | [Year, e.g., 2016 - 2020]</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="section py-20 bg-black bg-opacity-20">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl font-bold text-center mb-12 neon-text">Get In Touch</h2>
+                <div class="max-w-2xl mx-auto">
+                    <p class="text-lg mb-8 text-center">
+                        I'm currently open to new opportunities and collaborations. If you have a project in mind or just want to say hi, feel free to reach out!
+                    </p>
+                    
+                    <!-- Contact Form Message -->
+                    <div id="contact-message" class="hidden text-center mb-4 p-4 rounded-lg text-white"></div>
+                    
+                    <form id="contact-form" class="space-y-6">
+                        <div class="flex flex-col md:flex-row gap-6">
+                            <input type="text" name="name" placeholder="Your Name" required class="w-full bg-gray-800 border border-violet-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-violet-500">
+                            <input type="email" name="email" placeholder="Your Email" required class="w-full bg-gray-800 border border-violet-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-violet-500">
+                        </div>
+                        <textarea name="message" placeholder="Your Message" rows="5" required class="w-full bg-gray-800 border border-violet-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-violet-500"></textarea>
+                        <button type="submit" class="btn-primary w-full text-white font-bold py-3 px-8 rounded-lg text-lg">
+                            Send Message
+                        </button>
+                    </form>
+                    <div class="flex justify-center space-x-6 mt-8">
+                        <a href="[YOUR_GITHUB_URL]" target="_blank" class="text-gray-400 hover:text-violet-400 transition"><i class="fab fa-github text-3xl"></i></a>
+                        <a href="[YOUR_LINKEDIN_URL]" target="_blank" class="text-gray-400 hover:text-violet-400 transition"><i class="fab fa-linkedin text-3xl"></i></a>
+                        <a href="[YOUR_TWITTER_URL]" target="_blank" class="text-gray-400 hover:text-violet-400 transition"><i class="fab fa-twitter text-3xl"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="py-6 text-center text-gray-500">
+        <p>&copy; 2025 [Your Name]. All rights reserved.</p>
+    </footer>
+
+    <a href="#home" id="back-to-top" class="btn-primary rounded-full w-12 h-12 flex items-center justify-center">
+        <i class="fas fa-arrow-up text-white"></i>
+    </a>
+
+    <!-- Removed Three.js script -->
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Mobile Menu ---
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileLinks = document.querySelectorAll('.mobile-link');
+
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            mobileLinks.forEach(link => {
+                link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+            });
+
+            // --- Header Scroll Effect ---
+            const header = document.getElementById('header');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    header.classList.add('glass-effect');
+                    header.classList.add('py-2');
+                    header.classList.remove('py-4');
+                } else {
+                    header.classList.remove('glass-effect');
+                    header.classList.remove('py-2');
+                    header.classList.add('py-4');
+                }
+            });
+
+            // --- Typed.js for Dynamic Text ---
+            new Typed('#typed-text', {
+                strings: ["Full-Stack Developer", "React Expert", "Node.js Specialist", "Creative Coder"],
+                typeSpeed: 50,
+                backSpeed: 25,
+                backDelay: 2000,
+                loop: true
+            });
+
+            // --- REMOVED Three.js Animated Background section ---
+            // The new 2D background is 100% CSS and needs no JavaScript.
+
+            // --- ScrollReveal Animations ---
+            const sr = ScrollReveal({
+                distance: '60px',
+                duration: 2000,
+                easing: 'cubic-bezier(0.5, 0, 0, 1)',
+                reset: false
+            });
+
+            sr.reveal('.animate-fade-in-down', { origin: 'top' });
+            sr.reveal('.animate-fade-in-up', { origin: 'bottom', delay: 200 });
+            sr.reveal('.animate-fade-in', { delay: 400 });
+            sr.reveal('.animate-bounce', { delay: 600, scale: 0.5, distance: '0px' });
+            sr.reveal('#about img', { origin: 'left', delay: 200 });
+            sr.reveal('#about .glass-effect', { origin: 'right', delay: 400 });
+            sr.reveal('#experience .glass-effect', { origin: 'bottom', interval: 150 });
+            sr.reveal('.skill-card', { interval: 100 });
+            sr.reveal('#certifications .skill-card', { interval: 100, origin: 'bottom' });
+            sr.reveal('.project-card', { interval: 150, scale: 0.85 });
+            sr.reveal('#contact form', { scale: 0.9, delay: 200 });
+
+            // --- Back to Top Button ---
+            const backToTopBtn = document.getElementById('back-to-top');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    backToTopBtn.classList.add('show');
+                } else {
+                    backToTopBtn.classList.remove('show');
+                }
+            });
+
+            // --- Contact Form ---
+            const contactForm = document.getElementById('contact-form');
+            const messageDiv = document.getElementById('contact-message');
+
+            contactForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                // --- Replace this with your actual form submission logic (e.g., Formspree) ---
+                // Simulating a successful submission for this demo
+                const isSuccess = true; 
+                // -----------------------------------------------------------
+
+                if (isSuccess) {
+                    messageDiv.textContent = 'Thank you for your message! I will get back to you soon.';
+                    messageDiv.className = 'p-4 rounded-lg text-white text-center mb-4 success'; // Apply success styles
+                    contactForm.reset();
+                } else {
+                    messageDiv.textContent = 'Something went wrong. Please try again.';
+                    messageDiv.className = 'p-4 rounded-lg text-white text-center mb-4 error'; // Apply error styles
+                }
+                
+                messageDiv.classList.remove('hidden'); // Show the message
+                
+                // Hide the message after 5 seconds
+                setTimeout(() => {
+                    messageDiv.classList.add('hidden');
+                    // Reset classes after hiding
+                    messageDiv.className = 'hidden text-center mb-4 p-4 rounded-lg text-white'; 
+                }, 5000);
+            });
+        });
+    </script>
+</body>
+</html>
